@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mayilan — taking you to checkout</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #faf7f2; color: #2a2420;
+         font: 17px/1.5 Georgia, "Times New Roman", serif; text-align: center; padding: 0 16px; }
+  a { color: #8a3b12; }
+</style>
+</head>
+<body>
+<main>
+  <p>Taking you to this saree on our Etsy shop…</p>
+  <p><a id="go" href="https://mayilan.etsy.com">Continue to Mayilan on Etsy</a></p>
+</main>
+<script>
+// Meta Shops checkout URL: /checkout/?products=<SKU>:<qty>,<SKU>:<qty>&coupon=<code>
+// Every saree is one of a kind, so we send the buyer to the first product's Etsy listing (payment happens on Etsy).
+(async () => {
+  const shop = "https://mayilan.etsy.com";
+  let target = shop;
+  try {
+    const skus = (new URLSearchParams(location.search).get("products") || "")
+      .split(",").map(p => p.split(":")[0].trim()).filter(Boolean);
+    const map = await (await fetch("products.json", { cache: "no-store" })).json();
+    const hit = skus.find(s => map[s]);
+    if (hit) target = map[hit];
+  } catch (e) { /* fall back to the shop home page */ }
+  document.getElementById("go").href = target;
+  location.replace(target);
+})();
+</script>
+</body>
+</html>
